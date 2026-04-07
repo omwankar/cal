@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import CalendarSpiral from "./CalendarSpiral";
 import CalendarHero from "./CalendarHero";
@@ -11,15 +11,23 @@ const MONTH_NAMES = [
 ];
 
 const HOLIDAYS: Record<string, string> = {
-  "2026-01-01": "New Year's Day",
-  "2026-01-19": "MLK Jr. Day",
-  "2026-02-14": "Valentine's Day",
-  "2026-04-03": "Good Friday",
-  "2026-05-25": "Memorial Day",
-  "2026-07-04": "Independence Day",
-  "2026-09-07": "Labor Day",
-  "2026-11-26": "Thanksgiving",
-  "2026-12-25": "Christmas Day",
+  "2026-01-14": "Makar Sankranti",
+  "2026-01-23": "Vasant Panchami",
+  "2026-02-15": "Maha Shivaratri",
+  "2026-03-04": "Holi",
+  "2026-03-19": "Chaitra Navratri Begins",
+  "2026-03-27": "Rama Navami",
+  "2026-04-02": "Hanuman Jayanti",
+  "2026-04-20": "Akshaya Tritiya",
+  "2026-07-16": "Jagannath Rathyatra",
+  "2026-07-29": "Guru Purnima",
+  "2026-08-28": "Raksha Bandhan",
+  "2026-09-04": "Krishna Janmashtami",
+  "2026-09-14": "Ganesh Chaturthi",
+  "2026-10-11": "Sharad Navratri Begins",
+  "2026-10-20": "Dussehra (Vijayadashami)",
+  "2026-11-08": "Diwali",
+  "2026-11-15": "Chhath Puja",
 };
 
 const WallCalendar = () => {
@@ -29,6 +37,8 @@ const WallCalendar = () => {
   const [rangeStart, setRangeStart] = useState<number | null>(null);
   const [rangeEnd, setRangeEnd] = useState<number | null>(null);
   const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+  const [selectionNotes, setSelectionNotes] = useState("");
+  const [notesRevision, setNotesRevision] = useState(0);
   const [flipping, setFlipping] = useState(false);
 
   const goMonth = useCallback(
@@ -51,6 +61,7 @@ const WallCalendar = () => {
     setYear(now.getFullYear());
     setRangeStart(null);
     setRangeEnd(null);
+    setHoveredDay(null);
   };
 
   const handleDayClick = (day: number) => {
@@ -70,12 +81,39 @@ const WallCalendar = () => {
         ? `${MONTH_NAMES[month]} ${rangeStart} – ${rangeEnd}, ${year}`
         : `${MONTH_NAMES[month]} ${rangeStart}, ${year}`
       : null;
+  const rangeStorageKey =
+    rangeStart !== null
+      ? `${year}-${String(month + 1).padStart(2, "0")}-${String(rangeStart).padStart(2, "0")}__${String(
+          rangeEnd ?? rangeStart
+        ).padStart(2, "0")}`
+      : null;
 
   const monthKey = `${year}-${month}`;
   const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+  const notedDays = useMemo(() => {
+    const prefix = `calendar-notes-range-${monthKey}-`;
+    const map: Record<number, string> = {};
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith(prefix)) continue;
+      const value = localStorage.getItem(key)?.trim();
+      if (!value) continue;
+      const suffix = key.slice(prefix.length);
+      const match = suffix.match(/-(\d{2})__(\d{2})$/);
+      if (!match) continue;
+      const startDay = Number(match[1]);
+      const endDay = Number(match[2]);
+      const lo = Math.min(startDay, endDay);
+      const hi = Math.max(startDay, endDay);
+      for (let day = lo; day <= hi; day += 1) {
+        if (!map[day]) map[day] = value;
+      }
+    }
+    return map;
+  }, [monthKey, notesRevision]);
 
   return (
-    <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 py-6 sm:py-10 lg:py-14 animate-fade-up">
+    <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-10 lg:py-14 animate-fade-up">
       {/* Single vertical calendar card */}
       <div className={`cal-card rounded-lg overflow-hidden ${flipping ? "animate-page-flip" : ""}`}>
         {/* Spiral binding */}
@@ -87,8 +125,14 @@ const WallCalendar = () => {
         {/* Bottom section: Notes + Grid */}
         <div className="flex flex-col sm:flex-row">
           {/* Notes column */}
-          <div className="w-full sm:w-[140px] md:w-[170px] border-b sm:border-b-0 sm:border-r border-border/40 p-3 sm:p-4 flex-shrink-0">
-            <CalendarNotes monthKey={monthKey} rangeLabel={rangeLabel} />
+          <div className="w-full sm:w-[140px] md:w-[170px] border-b sm:border-b-0 sm:border-r border-border/40 p-2 sm:p-4 flex-shrink-0">
+            <CalendarNotes
+              monthKey={monthKey}
+              rangeLabel={rangeLabel}
+              rangeStorageKey={rangeStorageKey}
+              onSelectionNotesChange={setSelectionNotes}
+              onRangeNotesSaved={() => setNotesRevision((n) => n + 1)}
+            />
           </div>
 
           {/* Grid column */}
@@ -138,6 +182,8 @@ const WallCalendar = () => {
                 onDayClick={handleDayClick}
                 onDayHover={setHoveredDay}
                 holidays={HOLIDAYS}
+                selectionNotes={selectionNotes}
+                notedDays={notedDays}
               />
             </div>
           </div>

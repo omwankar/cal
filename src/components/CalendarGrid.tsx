@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CalendarGridProps {
   year: number;
@@ -10,6 +11,8 @@ interface CalendarGridProps {
   onDayClick: (day: number) => void;
   onDayHover: (day: number | null) => void;
   holidays: Record<string, string>;
+  selectionNotes: string;
+  notedDays: Record<number, string>;
 }
 
 const DAY_LABELS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
@@ -24,7 +27,12 @@ const CalendarGrid = ({
   onDayClick,
   onDayHover,
   holidays,
+  selectionNotes,
+  notedDays,
 }: CalendarGridProps) => {
+  const isMobile = useIsMobile();
+  const [activeMobileNoteDay, setActiveMobileNoteDay] = useState<number | null>(null);
+
   const { days, prevMonthDays, nextMonthDays } = useMemo(() => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDay = new Date(year, month, 1).getDay();
@@ -48,6 +56,13 @@ const CalendarGrid = ({
   const isStart = (day: number) => day === rangeStart;
   const isEnd = (day: number) => day === rangeEnd;
   const isEdge = (day: number) => isStart(day) || isEnd(day);
+  const getRangeBounds = () => {
+    if (rangeStart === null) return null;
+    const end = rangeEnd ?? hoveredDay;
+    if (end === null) return { lo: rangeStart, hi: rangeStart };
+    return { lo: Math.min(rangeStart, end), hi: Math.max(rangeStart, end) };
+  };
+  const bounds = getRangeBounds();
 
   const todayDate =
     today.getFullYear() === year && today.getMonth() === month ? today.getDate() : null;
@@ -84,6 +99,12 @@ const CalendarGrid = ({
           const edge = isCurrent && isEdge(cell.day);
           const start = isCurrent && isStart(cell.day);
           const end = isCurrent && isEnd(cell.day);
+          const isSingleDaySelection = start && rangeEnd === null;
+          const isMiddle = isCurrent && inRange && !start && !end;
+          const connectLeft =
+            !!bounds && isCurrent && cell.day > bounds.lo && cell.day <= bounds.hi;
+          const connectRight =
+            !!bounds && isCurrent && cell.day >= bounds.lo && cell.day < bounds.hi;
           const todayMark = isCurrent && cell.day === todayDate;
           const col = index % 7;
           const isSat = col === 5;
@@ -92,10 +113,30 @@ const CalendarGrid = ({
             ? `${year}-${String(month + 1).padStart(2, "0")}-${String(cell.day).padStart(2, "0")}`
             : null;
           const holiday = holidayKey ? holidays[holidayKey] : null;
+          const dayNote = isCurrent ? notedDays[cell.day] : undefined;
+          const notePreview = selectionNotes.trim();
+          const showSelectionNoteOnHover = inRange && notePreview.length > 0;
+          const visibleNote = dayNote || (showSelectionNoteOnHover ? notePreview : "");
+          const noteTooltip = visibleNote.length > 120 ? `${visibleNote.slice(0, 120)}...` : visibleNote;
+          const hoverText = holiday || undefined;
+
+          const showTooltip = isMobile ? activeMobileNoteDay === cell.day : false;
+
+          const handleDayPress = () => {
+            if (!isCurrent) return;
+            onDayClick(cell.day);
+            if (!isMobile) return;
+            if (visibleNote) {
+              setActiveMobileNoteDay((prev) => (prev === cell.day ? null : cell.day));
+            } else {
+              setActiveMobileNoteDay(null);
+            }
+          };
 
           return (
             <button
               key={`${cell.type}-${cell.day}`}
+              data-calendar-day="true"
               className={`
                 group relative flex flex-col items-center justify-center
                 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base font-body
@@ -105,12 +146,24 @@ const CalendarGrid = ({
                 ${inRange && !edge ? "cal-range-bg" : ""}
                 ${edge ? "z-10" : ""}
               `}
-              onClick={() => isCurrent && onDayClick(cell.day)}
-              onMouseEnter={() => isCurrent && onDayHover(cell.day)}
-              onMouseLeave={() => onDayHover(null)}
+              onClick={handleDayPress}
+              onMouseEnter={() => !isMobile && isCurrent && onDayHover(cell.day)}
+              onMouseLeave={() => !isMobile && onDayHover(null)}
               disabled={!isCurrent}
-              title={holiday || undefined}
+              title={hoverText}
             >
+              {visibleNote && (
+                <span
+                  className={`pointer-events-none absolute bottom-[calc(100%+6px)] left-1/2 z-30 w-[160px] -translate-x-1/2 rounded-md bg-foreground px-2 py-1 text-[10px] leading-snug text-background shadow-lg transition-opacity duration-150 ${
+                    showTooltip ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                  }`}
+                >
+                  {noteTooltip}
+                </span>
+              )}
+              {isMiddle && <span className="absolute inset-0 cal-range-bg" />}
+              {connectLeft && !isSingleDaySelection && <span className="absolute left-0 top-0 bottom-0 w-1/2 cal-range-bg" />}
+              {connectRight && !isSingleDaySelection && <span className="absolute right-0 top-0 bottom-0 w-1/2 cal-range-bg" />}
               {/* Edge pill */}
               {edge && (
                 <span
@@ -141,8 +194,15 @@ const CalendarGrid = ({
                 {cell.day}
               </span>
 
-              {holiday && (
-                <span className={`relative z-10 w-1 h-1 rounded-full mt-0.5 ${edge ? "bg-primary-foreground/70" : "bg-[hsl(var(--cal-red))]"}`} />
+              {(holiday || dayNote) && (
+                <span className="relative z-10 mt-0.5 flex items-center gap-0.5">
+                  {holiday && (
+                    <span className={`w-1 h-1 rounded-full ${edge ? "bg-primary-foreground/70" : "bg-[hsl(var(--cal-red))]"}`} />
+                  )}
+                  {dayNote && (
+                    <span className={`w-1 h-1 rounded-full ${edge ? "bg-primary-foreground/70" : "bg-[hsl(var(--cal-blue))]"}`} />
+                  )}
+                </span>
               )}
             </button>
           );
