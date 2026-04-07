@@ -1,14 +1,11 @@
 const CalendarSpiral = () => {
   return (
-    <div className="relative flex justify-center items-end gap-[18px] sm:gap-[22px] pt-1 pb-3 bg-gradient-to-b from-muted/60 to-transparent">
-      {Array.from({ length: 15 }).map((_, i) => (
+    <div className="flex justify-center items-end gap-[14px] sm:gap-[18px] md:gap-[22px] py-2 bg-gradient-to-b from-muted/40 to-transparent">
+      {Array.from({ length: 13 }).map((_, i) => (
         <div key={i} className="flex flex-col items-center">
-          {/* Wire going up */}
-          <div className="calendar-spiral-wire w-[2px] h-4 rounded-t-full" />
-          {/* Hole */}
-          <div className="calendar-spiral-hole border border-border/50" />
-          {/* Wire going down behind */}
-          <div className="calendar-spiral-wire w-[2px] h-2 rounded-b-full opacity-40" />
+          <div className="spiral-wire h-5" />
+          <div className="spiral-ring" />
+          <div className="spiral-wire h-2 opacity-30" />
         </div>
       ))}
     </div>

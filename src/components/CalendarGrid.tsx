@@ -59,23 +59,25 @@ const CalendarGrid = ({
   ];
 
   return (
-    <div className="px-4 sm:px-6 pb-5">
-      {/* Day headers */}
-      <div className="grid grid-cols-7 mb-2 border-b border-border/50 pb-2">
+    <div>
+      {/* Header row */}
+      <div className="grid grid-cols-7 border-b border-border/60">
         {DAY_LABELS.map((label, i) => (
           <div
             key={label}
-            className={`text-center text-[11px] font-semibold font-body tracking-wider uppercase ${
-              i >= 5 ? "text-calendar-weekend" : "text-muted-foreground"
-            }`}
+            className={`text-center text-[10px] sm:text-xs font-bold font-body tracking-wider py-2 uppercase
+              ${i === 5 ? "text-[hsl(var(--cal-blue))]" : ""}
+              ${i === 6 ? "text-[hsl(var(--cal-red))]" : ""}
+              ${i < 5 ? "text-foreground" : ""}
+            `}
           >
             {label}
           </div>
         ))}
       </div>
 
-      {/* Date cells */}
-      <div className="grid grid-cols-7 gap-y-0.5">
+      {/* Day cells */}
+      <div className="grid grid-cols-7">
         {allCells.map((cell, index) => {
           const isCurrent = cell.type === "current";
           const inRange = isCurrent && isInRange(cell.day);
@@ -83,7 +85,9 @@ const CalendarGrid = ({
           const start = isCurrent && isStart(cell.day);
           const end = isCurrent && isEnd(cell.day);
           const todayMark = isCurrent && cell.day === todayDate;
-          const weekend = index % 7 >= 5;
+          const col = index % 7;
+          const isSat = col === 5;
+          const isSun = col === 6;
           const holidayKey = isCurrent
             ? `${year}-${String(month + 1).padStart(2, "0")}-${String(cell.day).padStart(2, "0")}`
             : null;
@@ -93,13 +97,12 @@ const CalendarGrid = ({
             <button
               key={`${cell.type}-${cell.day}`}
               className={`
-                group relative flex flex-col items-center justify-center py-2.5 sm:py-3 text-sm font-body
-                transition-all duration-200 ease-out select-none
-                ${!isCurrent ? "text-muted-foreground/30 cursor-default" : "cursor-pointer"}
-                ${isCurrent && !inRange && !edge ? "hover:bg-calendar-day-hover rounded-lg" : ""}
-                ${inRange && !edge ? "range-gradient" : ""}
-                ${start ? "rounded-l-lg" : ""}
-                ${end ? "rounded-r-lg" : ""}
+                group relative flex flex-col items-center justify-center
+                py-2 sm:py-2.5 md:py-3 text-sm sm:text-base font-body
+                transition-all duration-150 select-none border-b border-border/20
+                ${!isCurrent ? "text-muted-foreground/25 cursor-default" : "cursor-pointer"}
+                ${isCurrent && !inRange && !edge ? "hover:bg-muted/50" : ""}
+                ${inRange && !edge ? "cal-range-bg" : ""}
                 ${edge ? "z-10" : ""}
               `}
               onClick={() => isCurrent && onDayClick(cell.day)}
@@ -108,45 +111,38 @@ const CalendarGrid = ({
               disabled={!isCurrent}
               title={holiday || undefined}
             >
-              {/* Edge marker (selected start/end) */}
+              {/* Edge pill */}
               {edge && (
                 <span
-                  className={`absolute inset-1 rounded-lg ${
-                    start
-                      ? "bg-calendar-range-edge"
-                      : "bg-calendar-range-edge-end"
-                  } shadow-lg`}
+                  className={`absolute inset-x-1 inset-y-0.5 rounded-md ${
+                    start ? "bg-[hsl(var(--cal-range-start))]" : "bg-[hsl(var(--cal-range-end))]"
+                  }`}
                   style={{
-                    boxShadow: start
-                      ? "0 4px 14px -3px hsl(var(--calendar-range-edge) / 0.4)"
-                      : "0 4px 14px -3px hsl(var(--calendar-range-edge-end) / 0.4)",
+                    boxShadow: `0 3px 10px -2px ${
+                      start ? "hsl(var(--cal-range-start) / 0.35)" : "hsl(var(--cal-range-end) / 0.35)"
+                    }`,
                   }}
                 />
               )}
 
               {/* Today ring */}
               {todayMark && !edge && (
-                <span className="absolute inset-1.5 rounded-lg border-2 border-calendar-today animate-pulse-ring" />
+                <span className="absolute inset-x-2 inset-y-0.5 rounded-md border-2 border-[hsl(var(--cal-today))] animate-pulse-ring" />
               )}
 
-              {/* Day number */}
               <span
-                className={`relative z-10 text-sm font-medium transition-colors
+                className={`relative z-10 font-medium
                   ${edge ? "text-primary-foreground font-bold" : ""}
-                  ${todayMark && !edge ? "text-foreground font-bold" : ""}
-                  ${weekend && isCurrent && !edge ? "text-calendar-weekend" : ""}
+                  ${todayMark && !edge ? "font-bold text-foreground" : ""}
+                  ${isSat && isCurrent && !edge ? "text-[hsl(var(--cal-blue))] font-semibold" : ""}
+                  ${isSun && isCurrent && !edge ? "text-[hsl(var(--cal-red))] font-semibold" : ""}
                 `}
               >
                 {cell.day}
               </span>
 
-              {/* Holiday dot */}
               {holiday && (
-                <span
-                  className={`relative z-10 w-1.5 h-1.5 rounded-full mt-0.5 ${
-                    edge ? "bg-primary-foreground/70" : "bg-accent"
-                  }`}
-                />
+                <span className={`relative z-10 w-1 h-1 rounded-full mt-0.5 ${edge ? "bg-primary-foreground/70" : "bg-[hsl(var(--cal-red))]"}`} />
               )}
             </button>
           );
