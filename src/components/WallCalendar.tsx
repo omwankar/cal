@@ -120,7 +120,7 @@ const WallCalendar = () => {
         <CalendarSpiral />
 
         {/* Hero image with wave */}
-        <CalendarHero month={MONTH_NAMES[month]} year={year} />
+        <CalendarHero month={MONTH_NAMES[month]} monthIndex={month} year={year} />
 
         {/* Bottom section: Notes + Grid */}
         <div className="flex flex-col sm:flex-row">
