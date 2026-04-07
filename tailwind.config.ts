@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        display: ['Playfair Display', 'serif'],
+        body: ['Source Sans 3', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -46,6 +50,18 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        calendar: {
+          bg: "hsl(var(--calendar-bg))",
+          shadow: "hsl(var(--calendar-shadow))",
+          weekend: "hsl(var(--calendar-weekend))",
+          range: "hsl(var(--calendar-range))",
+          "range-edge": "hsl(var(--calendar-range-edge))",
+          today: "hsl(var(--calendar-today))",
+          "notes-bg": "hsl(var(--calendar-notes-bg))",
+          "notes-line": "hsl(var(--calendar-notes-line))",
+          spiral: "hsl(var(--calendar-spiral))",
+          "header-bg": "hsl(var(--calendar-header-bg))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
