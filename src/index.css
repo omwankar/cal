@@ -2,53 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
-    --background: 40 20% 97%;
-    --foreground: 220 15% 20%;
+    --background: 220 20% 96%;
+    --foreground: 225 25% 18%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 20%;
+    --card-foreground: 225 25% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover-foreground: 225 25% 18%;
 
-    --primary: 205 85% 48%;
+    --primary: 215 90% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 40 15% 93%;
-    --secondary-foreground: 220 15% 20%;
+    --secondary: 220 15% 93%;
+    --secondary-foreground: 225 25% 18%;
 
-    --muted: 40 10% 92%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 220 14% 90%;
+    --muted-foreground: 220 10% 46%;
 
-    --accent: 350 75% 55%;
+    --accent: 350 80% 56%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 205 85% 48%;
+    --border: 220 18% 86%;
+    --input: 220 18% 86%;
+    --ring: 215 90% 52%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
+    /* Calendar-specific tokens */
     --calendar-bg: 0 0% 100%;
-    --calendar-shadow: 220 20% 80%;
-    --calendar-weekend: 205 85% 48%;
-    --calendar-range: 205 85% 92%;
-    --calendar-range-edge: 205 85% 48%;
-    --calendar-today: 40 90% 55%;
-    --calendar-notes-bg: 40 30% 96%;
-    --calendar-notes-line: 205 60% 82%;
-    --calendar-spiral: 220 10% 65%;
-    --calendar-header-bg: 205 85% 48%;
+    --calendar-shadow: 220 30% 70%;
+    --calendar-weekend: 215 90% 52%;
+    --calendar-range: 215 85% 93%;
+    --calendar-range-edge: 215 90% 52%;
+    --calendar-range-edge-end: 260 70% 58%;
+    --calendar-today: 38 95% 55%;
+    --calendar-notes-bg: 42 40% 96%;
+    --calendar-notes-line: 215 40% 86%;
+    --calendar-spiral: 220 15% 55%;
+    --calendar-hero-overlay-start: 215 90% 52%;
+    --calendar-hero-overlay-end: 260 70% 58%;
+    --calendar-day-hover: 215 60% 96%;
 
     --font-display: 'Playfair Display', serif;
     --font-body: 'Source Sans 3', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -73,19 +78,111 @@
 }
 
 @layer components {
+  .calendar-card {
+    background: hsl(var(--calendar-bg));
+    box-shadow:
+      0 4px 6px -1px hsl(var(--calendar-shadow) / 0.15),
+      0 20px 50px -12px hsl(var(--calendar-shadow) / 0.25),
+      0 0 0 1px hsl(var(--border) / 0.5);
+  }
+
   .calendar-spiral-hole {
-    @apply w-4 h-4 rounded-full bg-background border-2;
-    border-color: hsl(var(--calendar-spiral));
+    @apply w-3.5 h-3.5 rounded-full;
+    background: hsl(var(--background));
+    box-shadow:
+      inset 0 2px 4px hsl(var(--calendar-spiral) / 0.3),
+      0 1px 0 hsl(0 0% 100% / 0.8);
+  }
+
+  .calendar-spiral-wire {
+    background: linear-gradient(
+      180deg,
+      hsl(var(--calendar-spiral) / 0.6) 0%,
+      hsl(var(--calendar-spiral)) 40%,
+      hsl(var(--calendar-spiral) / 0.8) 100%
+    );
+  }
+
+  .notes-lined {
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 31px,
+      hsl(var(--calendar-notes-line) / 0.6) 31px,
+      hsl(var(--calendar-notes-line) / 0.6) 32px
+    );
+  }
+
+  .hero-gradient-overlay {
+    background: linear-gradient(
+      160deg,
+      hsl(var(--calendar-hero-overlay-start) / 0.7) 0%,
+      hsl(var(--calendar-hero-overlay-end) / 0.5) 50%,
+      transparent 100%
+    );
+  }
+
+  .hero-bottom-overlay {
+    background: linear-gradient(
+      to top,
+      hsl(0 0% 0% / 0.55) 0%,
+      hsl(0 0% 0% / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .range-gradient {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--calendar-range-edge) / 0.15),
+      hsl(var(--calendar-range-edge) / 0.08)
+    );
+  }
+
+  .nav-button {
+    @apply p-2 rounded-full transition-all duration-200;
+    background: hsl(var(--muted) / 0.5);
+  }
+  .nav-button:hover {
+    background: hsl(var(--primary) / 0.1);
+    transform: scale(1.1);
+  }
+  .nav-button:active {
+    transform: scale(0.95);
   }
 }
 
+/* Animations */
 @keyframes page-flip {
   0% { transform: perspective(1200px) rotateX(0deg); opacity: 1; }
-  50% { transform: perspective(1200px) rotateX(-90deg); opacity: 0.5; }
+  40% { transform: perspective(1200px) rotateX(-90deg); opacity: 0.3; }
   100% { transform: perspective(1200px) rotateX(0deg); opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 hsl(var(--calendar-today) / 0.4); }
+  70% { box-shadow: 0 0 0 6px hsl(var(--calendar-today) / 0); }
+  100% { box-shadow: 0 0 0 0 hsl(var(--calendar-today) / 0); }
 }
 
 .animate-page-flip {
   animation: page-flip 0.5s ease-in-out;
   transform-origin: top center;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
