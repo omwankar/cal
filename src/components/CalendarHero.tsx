@@ -4,24 +4,20 @@ interface CalendarHeroProps {
   year: number;
 }
 
-const WIKI_WIDTH = 2000;
-const wikiFile = (filename: string) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}?width=${WIKI_WIDTH}`;
-
 const MONTH_HERO_IMAGES: string[] = [
-  // Jan – Dec (online, Hindu-festival themed; high-quality 2000px-wide images via Wikimedia)
-  wikiFile("A_night_lit_up_on_Makar_Sankranti_Uttarayana_Festival_with_Kites_and_Lights_India.jpg"), // Jan: Makar Sankranti (kites)
-  wikiFile("Lankeshwar_Temple_Shiva_Linga.jpg"), // Feb: Maha Shivaratri (Shiva linga)
-  wikiFile("Holi_Colours_on_hand.jpg"), // Mar: Holi (colors)
-  wikiFile("Ram_Navami.jpg"), // Apr: Ram Navami
-  wikiFile("Rangoli_on_Ram_Navami_in_Tulshibaug_Ram_Temple%2C_Pune.jpg"), // May: festive rangoli
-  wikiFile("Chariot_of_Lord_Jagganath.JPG"), // Jun: Jagannath Rath Yatra
-  wikiFile("Rath_yatra.jpg"), // Jul: Rath Yatra
-  wikiFile("Rakhi_tied_on_brother%27s_hand.jpg"), // Aug: Raksha Bandhan
-  wikiFile("Idol_of_Lord_Ganesha_worshipped_on_the_occasion_of_Ganesh_Chaturthi.jpg"), // Sep: Ganesh Chaturthi
-  wikiFile("Durga_idol_in_Durga_Puja.jpg"), // Oct: Navratri / Durga Puja
-  wikiFile("Diwali_Diyas_Lamps.jpg"), // Nov: Diwali
-  wikiFile("Diwali_diya.jpg"), // Dec: festive lights
+  // Jan – Dec (season-wise Unsplash images, one per month)
+  "https://images.unsplash.com/photo-1483664852095-d6cc6870702d?auto=format&fit=crop&w=2000&q=80", // Jan - winter
+  "https://images.unsplash.com/photo-1455156218388-5e61b526818b?auto=format&fit=crop&w=2000&q=80", // Feb - late winter
+  "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=2000&q=80", // Mar - spring bloom
+  "https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?auto=format&fit=crop&w=2000&q=80", // Apr - spring field
+  "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=2000&q=80", // May - early summer
+  "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=2000&q=80", // Jun - monsoon onset
+  "https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?auto=format&fit=crop&w=2000&q=80", // Jul - rainy green season
+  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2000&q=80", // Aug - lush mountains
+  "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=2000&q=80", // Sep - post-monsoon clarity
+  "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=80", // Oct - autumn tones
+  "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2000&q=80", // Nov - festive city lights
+  "https://images.unsplash.com/photo-1482192505345-5655af888cc4?auto=format&fit=crop&w=2000&q=80", // Dec - winter festive
 ];
 
 const CalendarHero = ({ month, monthIndex, year }: CalendarHeroProps) => {
