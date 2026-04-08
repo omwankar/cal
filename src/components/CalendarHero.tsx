@@ -4,20 +4,24 @@ interface CalendarHeroProps {
   year: number;
 }
 
+const WIKI_WIDTH = 2000;
+const wikiFile = (filename: string) =>
+  `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}?width=${WIKI_WIDTH}`;
+
 const MONTH_HERO_IMAGES: string[] = [
-  // Jan – Dec (royalty-free Unsplash photos)
-  "https://images.unsplash.com/photo-1457269449834-928af64c684d?auto=format&fit=crop&w=1600&q=80", // winter
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1600&q=80", // winter mountains
-  "https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&w=1600&q=80", // spring blossoms
-  "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1600&q=80", // spring flowers
-  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80", // early summer
-  "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1600&q=80", // ocean
-  "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&q=80", // green valley
-  "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80", // mountains
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80", // autumn leaves
-  "https://images.unsplash.com/photo-1477414348463-c0eb7f1359b6?auto=format&fit=crop&w=1600&q=80", // autumn forest
-  "https://images.unsplash.com/photo-1516455207990-7a41ce80f7ee?auto=format&fit=crop&w=1600&q=80", // cozy lights
-  "https://images.unsplash.com/photo-1482517967863-00e15c9b44be?auto=format&fit=crop&w=1600&q=80", // festive
+  // Jan – Dec (online, Hindu-festival themed; high-quality 2000px-wide images via Wikimedia)
+  wikiFile("A_night_lit_up_on_Makar_Sankranti_Uttarayana_Festival_with_Kites_and_Lights_India.jpg"), // Jan: Makar Sankranti (kites)
+  wikiFile("Lankeshwar_Temple_Shiva_Linga.jpg"), // Feb: Maha Shivaratri (Shiva linga)
+  wikiFile("Holi_Colours_on_hand.jpg"), // Mar: Holi (colors)
+  wikiFile("Ram_Navami.jpg"), // Apr: Ram Navami
+  wikiFile("Rangoli_on_Ram_Navami_in_Tulshibaug_Ram_Temple%2C_Pune.jpg"), // May: festive rangoli
+  wikiFile("Chariot_of_Lord_Jagganath.JPG"), // Jun: Jagannath Rath Yatra
+  wikiFile("Rath_yatra.jpg"), // Jul: Rath Yatra
+  wikiFile("Rakhi_tied_on_brother%27s_hand.jpg"), // Aug: Raksha Bandhan
+  wikiFile("Idol_of_Lord_Ganesha_worshipped_on_the_occasion_of_Ganesh_Chaturthi.jpg"), // Sep: Ganesh Chaturthi
+  wikiFile("Durga_idol_in_Durga_Puja.jpg"), // Oct: Navratri / Durga Puja
+  wikiFile("Diwali_Diyas_Lamps.jpg"), // Nov: Diwali
+  wikiFile("Diwali_diya.jpg"), // Dec: festive lights
 ];
 
 const CalendarHero = ({ month, monthIndex, year }: CalendarHeroProps) => {
@@ -33,6 +37,14 @@ const CalendarHero = ({ month, monthIndex, year }: CalendarHeroProps) => {
         alt={`${month} ${year}`}
         className="w-full h-full object-cover"
         loading="lazy"
+        referrerPolicy="no-referrer"
+        onError={(e) => {
+          const img = e.currentTarget;
+          if (!img.dataset.fallbackApplied) {
+            img.dataset.fallbackApplied = "true";
+            img.src = "/placeholder.svg";
+          }
+        }}
         width={1024}
         height={680}
       />
